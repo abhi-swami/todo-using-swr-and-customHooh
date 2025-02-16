@@ -1,10 +1,12 @@
 import { useState } from "react";
+
 import AddTodos from "./components/todos/addTodo";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { useFetch } from "./hooks/useFetch";
+import { useFetch, BASE_URL } from "./hooks/useFetch";
 import EditTodo from "./components/todos/editTodo";
+import useSWR from "swr";
 
 const Todos = () => {
+  const getFetcher = () => getMehtod("todos");
   const { getMehtod, otherMethod } = useFetch();
 
   const [inputValue, setInputValue] = useState("");
@@ -12,46 +14,53 @@ const Todos = () => {
 
   const [editTodo, setEditTodo] = useState({});
 
-  const { data: allTodos = [], refetch } = useQuery({
-    queryKey: ["todos"],
-    queryFn: () => getMehtod("todos"),
-  });
+  const data = useSWR(`${BASE_URL}todos`, getFetcher);
 
-  const addMutation = useMutation({
-    mutationFn: ({ obj }) => {
-      return otherMethod(`todos`, "POST", obj);
-    },
-    onSuccess: () => {
-      refetch();
-    },
-    onError: (error) => {
-      console.error("Failed to toggle todo:", error);
-    },
-  });
+  const { data: allTodos, isLoading, mutate } = data;
 
-  const toggleMutation = useMutation({
-    mutationFn: ( {key, todo} ) => {
-      console.log("key is", key,todo);
-      const obj = { ...todo, completed: !todo.completed };
-      return otherMethod(`todos/${key}`, "PUT", obj);
-    },
-    onSuccess: () => {
-      refetch();
-    },
-    onError: (error) => {
-      console.error("Failed to toggle todo:", error);
-    },
-  });
+  console.log("allData", data);
 
-  const deleteMutation = useMutation({
-    mutationFn: ({ key, obj }) => {
-      return otherMethod(`todos/${key}`, "DELETE", obj);
-    },
-    onSuccess: () => {
-      refetch();
-    },
-    onError: (error) => console.log(error),
-  });
+  const addNewTodo = async (obj) => {
+    try {
+      const res = await otherMethod(`todos`, "POST", obj);
+      console.log("res", res);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const editExistingTodo = async (key, obj) => {
+    try {
+      const res = await otherMethod(`todos/${key}`, "PUT", obj);
+      console.log("res", res);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  // const toggleMutation = useMutation({
+  //   mutationFn: ( {key, todo} ) => {
+  //     console.log("key is", key,todo);
+  //     const obj = { ...todo, completed: !todo.completed };
+  //     return otherMethod(`todos/${key}`, "PUT", obj);
+  //   },
+  //   onSuccess: () => {
+  //     refetch();
+  //   },
+  //   onError: (error) => {
+  //     console.error("Failed to toggle todo:", error);
+  //   },
+  // });
+
+  // const deleteMutation = useMutation({
+  //   mutationFn: ({ key, obj }) => {
+  //     return otherMethod(`todos/${key}`, "DELETE", obj);
+  //   },
+  //   onSuccess: () => {
+  //     refetch();
+  //   },
+  //   onError: (error) => console.log(error),
+  // });
 
   const handleInputChange = (event) => {
     const { value } = event.target;
@@ -64,11 +73,13 @@ const Todos = () => {
       title: inputValue,
       completed: false,
     };
-    addMutation.mutate({ obj });
+    addNewTodo(obj);
   };
 
   const handleToggle = (key, todo) => {
-    toggleMutation.mutate({ key, todo });
+    const updatedTodo ={...todo,completed:!todo.completed}
+    editExistingTodo(key, updatedTodo);
+    // toggleMutation.mutate({ key, todo });
   };
 
   const handleEdit = (key, todo) => {
@@ -79,7 +90,7 @@ const Todos = () => {
   const handleEditSubmit = (todo) => {
     const key = todo.id;
     toggleMutation.mutate({ key, todo });
-    setIsModalOpen(false)
+    setIsModalOpen(false);
   };
 
   const handleDelete = (key) => {
