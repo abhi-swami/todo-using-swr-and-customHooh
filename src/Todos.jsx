@@ -16,7 +16,7 @@ const Todos = () => {
 
   const data = useSWR(`${BASE_URL}todos`, getFetcher);
 
-  const { data: allTodos, isLoading, mutate } = data;
+  const { data: allTodos, mutate } = data;
 
   console.log("allData", data);
 
