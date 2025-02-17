@@ -34,8 +34,8 @@
     },
     {
       "id": "5",
-      "title": "learn typescript",
-      "completed": false
+      "title": "learn swr",
+      "completed": true
     }
   ],
   "comments": [

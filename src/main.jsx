@@ -6,7 +6,7 @@ import { SWRConfig } from "swr";
 createRoot(document.getElementById("root")).render(
   <SWRConfig
     value={{
-      refreshInterval: 3000,
+      refreshInterval: 300000,
     }}
   >
     <App />
