@@ -30,7 +30,12 @@
     {
       "id": "4",
       "title": "learn react",
-      "completed": false
+      "completed": true
+    },
+    {
+      "id": "5",
+      "title": "learn swr",
+      "completed": true
     }
   ],
   "comments": [
