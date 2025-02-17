@@ -1,6 +1,5 @@
-
 import { useState } from "react";
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
 import useSWRMutation from "swr/mutation";
 import AddTodos from "./components/todos/addTodo";
 import EditTodo from "./components/todos/editTodo";
@@ -19,56 +18,74 @@ const Todos = () => {
     isLoading,
   } = useSWR(`${BASE_URL}todos`, () => getMehtod("todos"));
 
-  // Add todo mutation
+  / * <---------------- add method start------------------------------->  */;
+  
+  const handleAddTodoTrigger = async (url, { arg }) => {
+    const result = await otherMethod("todos", "POST", arg);
+    return result;
+  };
+  const handleAddSuccess = (result) => {
+    const updatedTodos = [...(allTodos || []), result];
+    mutate(`${BASE_URL}todos`, updatedTodos, false);
+  };
+
   const { trigger: addTodoTrigger } = useSWRMutation(
     `${BASE_URL}todos`,
-    async (url, { arg: newTodo }) => {
-      const result = await otherMethod(`todos`, "POST", newTodo);
-      return result;
-    },
+    handleAddTodoTrigger,
     {
-      // Optimistically update the cache
-      onSuccess: (result) => {
-        const updatedTodos = [...(allTodos || []), result];
-        // Update the todos cache
-        useSWR.mutate(`${BASE_URL}todos`, updatedTodos, false);
-      },
+      onSuccess: (result) => handleAddSuccess(result),
     }
   );
+  / * <---------------- add method end ------------------------------->  */;
 
-  // Edit todo mutation
+  / * <---------------- edit method start ---------------------------->*/;
+
+  const handleEditTodoTrigger = async (url, { arg }) => {
+    const { key, updatedTodo } = arg;
+    const result = await otherMethod(`todos/${key}`, "PUT", updatedTodo);
+    return result;
+  };
+
+  const handleEditSuccess = (result) => {
+    const updatedTodos = allTodos.map((todo) =>
+      todo.id === result.id ? result : todo
+    );
+    mutate(`${BASE_URL}todos`, updatedTodos, false);
+  };
+
   const { trigger: editTodoTrigger } = useSWRMutation(
-    `${BASE_URL}todos`,
-    async (url, { arg: { key, updatedTodo } }) => {
-      const result = await otherMethod(`todos/${key}`, "PUT", updatedTodo);
-      return result;
-    },
+    `${BASE_URL}todos/1`,
+    handleEditTodoTrigger,
     {
-      // Optimistically update the cache
-      onSuccess: (result, { key, updatedTodo }) => {
-        const updatedTodos = allTodos.map((todo) =>
-          todo.id === key ? updatedTodo : todo
-        );
-        useSWR.mutate(`${BASE_URL}todos`, updatedTodos, false);
-      },
+      onSuccess: (result) => handleEditSuccess(result),
     }
   );
 
-  // Delete todo mutation
+  / * <---------------- edit method end -------------------------------->*/;
+
+  / * <---------------- delete method start ---------------------------->*/;
+  const handleDeleteTodoTrigger = async (url, { arg }) => {
+    const obj = {};
+    console.log("args", arg);
+
+    const result = await otherMethod(`todos/${arg}`, "DELETE", obj);
+    return result;
+  };
+
+  const handleDeleteSuccess = (result) => {
+    const updatedTodos = allTodos.filter((todo) => todo.id !== result.id);
+    mutate(`${BASE_URL}todos`, updatedTodos, false);
+  };
+
   const { trigger: deleteTodoTrigger } = useSWRMutation(
     `${BASE_URL}todos`,
-    async (url, { arg: key }) => {
-      await otherMethod(`todos/${key}`, "DELETE", {});
-      return key;
-    },
+    handleDeleteTodoTrigger,
     {
-      // Optimistically update the cache
-      onSuccess: (result, key) => {
-        const updatedTodos = allTodos.filter((todo) => todo.id !== key);
-        useSWR.mutate(`${BASE_URL}todos`, updatedTodos, false);
-      },
+      onSuccess: (result) => handleDeleteSuccess(result),
     }
   );
+
+  / * <---------------- delete method end ------------------------------>*/;
 
   const handleInputChange = (event) => {
     setInputValue(event.target.value);
