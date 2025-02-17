@@ -52,7 +52,7 @@
 
 //   const handleAddTodo = () => {
 //     if (!inputValue.trim()) return;
-    
+
 //     const obj = {
 //       id: allTodos ? allTodos.length + 1 : 1,
 //       title: inputValue.trim(),
@@ -93,15 +93,15 @@
 //           onInputchange={handleInputChange}
 //           onAddTodo={handleAddTodo}
 //         />
-        
+
 //         {allTodos && allTodos.length === 0 && (
 //           <p className="text-gray-500 text-center py-4">No todos yet. Add one to get started!</p>
 //         )}
 
 //         <div className="space-y-2 mt-4">
 //           {allTodos?.map((individualTodo) => (
-//             <div 
-//               key={individualTodo.id} 
+//             <div
+//               key={individualTodo.id}
 //               className="flex items-center p-3 bg-white rounded-lg shadow-sm border border-gray-200"
 //             >
 //               <div className="flex-1 flex items-center gap-x-3">
@@ -113,8 +113,8 @@
 //               <div className="flex gap-x-2">
 //                 <button
 //                   className={`px-3 py-1 rounded-md text-sm font-medium transition-colors
-//                     ${individualTodo.completed 
-//                       ? 'bg-green-100 text-green-700 hover:bg-green-200' 
+//                     ${individualTodo.completed
+//                       ? 'bg-green-100 text-green-700 hover:bg-green-200'
 //                       : 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'
 //                     }`}
 //                   onClick={() => handleToggle(individualTodo.id, individualTodo)}
@@ -151,9 +151,9 @@
 
 // export default Todos;
 
-
 import { useState } from "react";
-import useSWR, { useSWRMutation } from "swr";
+import useSWR from "swr";
+import useSWRMutation from "swr/mutation";
 import AddTodos from "./components/todos/addTodo";
 import EditTodo from "./components/todos/editTodo";
 import { useFetch, BASE_URL } from "./hooks/useFetch";
@@ -165,10 +165,11 @@ const Todos = () => {
   const [editTodo, setEditTodo] = useState({});
 
   // Main todos fetch
-  const { data: allTodos, error, isLoading } = useSWR(
-    `${BASE_URL}todos`,
-    () => getMehtod("todos")
-  );
+  const {
+    data: allTodos,
+    error,
+    isLoading,
+  } = useSWR(`${BASE_URL}todos`, () => getMehtod("todos"));
 
   // Add todo mutation
   const { trigger: addTodoTrigger } = useSWRMutation(
@@ -274,7 +275,11 @@ const Todos = () => {
   };
 
   if (error) {
-    return <div className="text-red-500 p-4">Error loading todos: {error.message}</div>;
+    return (
+      <div className="text-red-500 p-4">
+        Error loading todos: {error.message}
+      </div>
+    );
   }
 
   if (isLoading) {
@@ -289,33 +294,44 @@ const Todos = () => {
           onInputchange={handleInputChange}
           onAddTodo={handleAddTodo}
         />
-        
+
         {allTodos && allTodos.length === 0 && (
-          <p className="text-gray-500 text-center py-4">No todos yet. Add one to get started!</p>
+          <p className="text-gray-500 text-center py-4">
+            No todos yet. Add one to get started!
+          </p>
         )}
 
         <div className="space-y-2 mt-4">
           {allTodos?.map((individualTodo) => (
-            <div 
-              key={individualTodo.id} 
+            <div
+              key={individualTodo.id}
               className="flex items-center p-3 bg-white rounded-lg shadow-sm border border-gray-200"
             >
               <div className="flex-1 flex items-center gap-x-3">
-                <span className="text-gray-500 text-sm">#{individualTodo.id}</span>
-                <p className={`truncate ${individualTodo.completed ? 'line-through text-gray-500' : ''}`}>
+                <span className="text-gray-500 text-sm">
+                  #{individualTodo.id}
+                </span>
+                <p
+                  className={`truncate ${
+                    individualTodo.completed ? "line-through text-gray-500" : ""
+                  }`}
+                >
                   {individualTodo.title}
                 </p>
               </div>
               <div className="flex gap-x-2">
                 <button
                   className={`px-3 py-1 rounded-md text-sm font-medium transition-colors
-                    ${individualTodo.completed 
-                      ? 'bg-green-100 text-green-700 hover:bg-green-200' 
-                      : 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'
+                    ${
+                      individualTodo.completed
+                        ? "bg-green-100 text-green-700 hover:bg-green-200"
+                        : "bg-yellow-100 text-yellow-700 hover:bg-yellow-200"
                     }`}
-                  onClick={() => handleToggle(individualTodo.id, individualTodo)}
+                  onClick={() =>
+                    handleToggle(individualTodo.id, individualTodo)
+                  }
                 >
-                  {individualTodo.completed ? 'Done' : 'Pending'}
+                  {individualTodo.completed ? "Done" : "Pending"}
                 </button>
                 <button
                   className="px-3 py-1 rounded-md text-sm font-medium bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors"
