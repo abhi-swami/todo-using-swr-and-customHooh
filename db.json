@@ -31,11 +31,6 @@
       "id": "4",
       "title": "learn react",
       "completed": true
-    },
-    {
-      "id": "5",
-      "title": "learn typescript",
-      "completed": false
     }
   ],
   "comments": [
