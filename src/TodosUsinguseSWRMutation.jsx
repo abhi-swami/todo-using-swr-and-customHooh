@@ -66,7 +66,6 @@ const Todos = () => {
   / * <---------------- delete method start ---------------------------->*/;
   const handleDeleteTodoTrigger = async (url, { arg }) => {
     const obj = {};
-    console.log("args", arg);
 
     const result = await otherMethod(`todos/${arg}`, "DELETE", obj);
     return result;
